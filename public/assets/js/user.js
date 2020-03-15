@@ -7,47 +7,92 @@ $.ajax({
     }
 });
 function rander() {
-    var html = template('userList',{data: userArr});
+    var html = template('userList', { data: userArr });
     $('tbody').html(html);
 }
 // 头像上传表单发生改变时
-$('#modifyBox').on('change','#avatar',function() {
+$('#modifyBox').on('change', '#avatar', function () {
     var formData = new FormData();
-    formData.append('avatar',this.files[0]);
+    formData.append('avatar', this.files[0]);
     $.ajax({
         type: 'post',
-		url: '/upload',
-		data: formData,
-		// 告诉$.ajax方法不要解析请求参数
-		processData: false,
-		// 告诉$.ajax方法不要设置请求参数的类型
-		contentType: false,
-		success: function (response) {
-			// 实现头像预览功能
-			$('#preview').attr('src', response[0].avatar);
-			$('#hiddenAvatar').val(response[0].avatar)
-		}
+        url: '/upload',
+        data: formData,
+        // 告诉$.ajax方法不要解析请求参数
+        processData: false,
+        // 告诉$.ajax方法不要设置请求参数的类型
+        contentType: false,
+        success: function (response) {
+            // 实现头像预览功能
+            $('#preview').attr('src', response[0].avatar);
+            $('#hiddenAvatar').val(response[0].avatar)
+        }
     });
 });
+function clear() {
+    $('#hiddenAvatar').val('');
+    $('#preview').prop('src', '../assets/img/default.png');
+    $('input[name="email"]').prop('disabled', false).val('');
+    $('input[name="nickName"]').val('');
+    $('input[name="password"]').prop('disabled', false).val('');
+    $('#status0').prop('checked', false);
+    $('#status1').prop('checked', false);
+    $('#admin').prop('checked', false);
+    $('#normal').prop('checked', false);
+}
 // 当用户点击提交按钮时
-$('#btn').on('click',function () {
+$('#addBtn').on('click', function () {
     var formData = $('#form').serialize();
     $.ajax({
         type: 'post',
         url: '/users',
         data: formData,
         success: function (res) {
-            userArr.push(res);
+            userArr.unshift(res);
             rander();
-            $('#hiddenAvatar').val('');
-            $('#preview').prop('src','../assets/img/default.png')
-            $('input[name="email"]').val('');
-            $('input[name="nickName"]').val('');
-            $('input[name="password"]').val('');
-            $('#status0').prop('checked',false);
-            $('#status1').prop('checked',false);
-            $('#admin').prop('checked',false);
-            $('#normal').prop('checked',false);
+            clear();
         }
-    })
-})
+    });
+});
+// 给修改按钮添加点击事件  事件委托
+var userId;
+$('tbody').on('click', '.edit', function () {
+    userId = $(this).attr('data-id');
+    var tr = $(this).parents('tr');
+    $('#preview').prop('src', tr.children().eq(1).find('img').prop('src'));
+    $('#hiddenAvatar').val(tr.children().eq(1).find('img').prop('src'));
+    $('input[name="email"]').prop('disabled', true).val(tr.children().eq(2).text());
+    $('input[name="nickName"]').val(tr.children().eq(3).text());
+    $('input[name="password"]').prop('disabled', true);
+    if (tr.children().eq(4).text() == '激活') {
+        $('#status1').prop('checked', true);
+    } else {
+        $('#status0').prop('checked', true);
+    }
+    if (tr.children().eq(5).text() == '超级管理员') {
+        $('#admin').prop('checked', true);
+    } else {
+        $('#normal').prop('checked', true);
+    }
+    $('h2').text('修改用户信息');
+    $('#addBtn').hide();
+    $('#editBtn').show();
+});
+// 用户提交修改
+$('#editBtn').on('click', function () {
+    var formData = $('#form').serialize();
+    $.ajax({
+        type: 'put',
+        url: '/users/' + userId,
+        data: formData,
+        success: function (res) {
+            var index = userArr.findIndex(item => item._id == res._id);
+            userArr[index] = res;
+            rander();
+            clear();
+            $('h2').text('添加新用户');
+            $('#addBtn').show();
+            $('#editBtn').hide();
+        }
+    });
+});

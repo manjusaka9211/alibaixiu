@@ -76,7 +76,8 @@
               </div>
             </div>
             <div class="form-group">
-              <button class="btn btn-primary" type="button" id="btn">添加</button>
+              <button class="btn btn-primary" type="button" id="addBtn">添加</button>
+              <button class="btn btn-primary" type="button" id="editBtn" style="display: none;">修改</button>
             </div>
           </form>
         </div>
@@ -161,7 +162,7 @@
       <td>{{$value.status == 0 ? '未激活' : '激活'}}</td>
       <td>{{$value.role == 'admin' ? '超级管理员' : '普通用户'}}</td>
       <td class="text-center">
-        <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
+        <a href="javascript:;" class="btn btn-default btn-xs edit" data-id="{{$value._id}}">编辑</a>
         <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
       </td>
     </tr>
