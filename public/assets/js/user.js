@@ -27,5 +27,27 @@ $('#modifyBox').on('change','#avatar',function() {
 			$('#preview').attr('src', response[0].avatar);
 			$('#hiddenAvatar').val(response[0].avatar)
 		}
+    });
+});
+// 当用户点击提交按钮时
+$('#btn').on('click',function () {
+    var formData = $('#form').serialize();
+    $.ajax({
+        type: 'post',
+        url: '/users',
+        data: formData,
+        success: function (res) {
+            userArr.push(res);
+            rander();
+            $('#hiddenAvatar').val('');
+            $('#preview').prop('src','../assets/img/default.png')
+            $('input[name="email"]').val('');
+            $('input[name="nickName"]').val('');
+            $('input[name="password"]').val('');
+            $('#status0').prop('checked',false);
+            $('#status1').prop('checked',false);
+            $('#admin').prop('checked',false);
+            $('#normal').prop('checked',false);
+        }
     })
 })
