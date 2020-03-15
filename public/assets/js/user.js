@@ -96,3 +96,17 @@ $('#editBtn').on('click', function () {
         }
     });
 });
+// 删除单个用户
+$('tbody').on('click','.delete',function() {
+    // 获取当前点击的用户的id
+    var id = $(this).siblings('.edit').attr('data-id');
+    $.ajax({
+        type: 'delete',
+        url: '/users/' + id,
+        success: function(res) {
+            var index = userArr.findIndex(item => item._id == res._id);
+            userArr.splice(index,1);
+            rander();
+        }
+    })
+})
