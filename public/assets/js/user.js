@@ -143,15 +143,17 @@ $('#deleteMany').on('click',function () {
     $('.usercheck:checked').each((index,item) => {
         arr.push($(item).attr('data-id'));
     });
-    $.ajax({
-        type: 'delete',
-        url: '/users/' + arr.join('-'),
-        success: function (res) {
-            res.forEach((index,ele) => {
-                var index = userArr.findIndex(item => item._id === ele._id);
-                userArr.splice(index,1);
-            });
-            rander();
-        }
-    })
-})
+    if (confirm('你确定要删除这些用户吗？')) {
+        $.ajax({
+            type: 'delete',
+            url: '/users/' + arr.join('-'),
+            success: function (res) {
+                res.forEach((index,ele) => {
+                    var index = userArr.findIndex(item => item._id === ele._id);
+                    userArr.splice(index,1);
+                });
+                rander();
+            }
+        });
+    }
+});
