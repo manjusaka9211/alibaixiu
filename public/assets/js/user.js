@@ -108,5 +108,50 @@ $('tbody').on('click','.delete',function() {
             userArr.splice(index,1);
             rander();
         }
+    });
+});
+// 批量删除
+// 当全选按钮发生改变时
+$('#checkall').on('change',function () {
+    // console.log($(this).prop('checked'));
+    $('tbody').find('input').prop('checked',$(this).prop('checked'));
+    // 根据选中状态显示与隐藏批量删除按钮
+    if ($(this).prop('checked')) {
+        $('#deleteMany').show();
+    } else {
+        $('#deleteMany').hide();
+    }
+});
+// 当下面的复选框发生改变时
+$('tbody').on('change','.usercheck',function () {
+    // 获取复选框的总数
+    var inputs = $('.usercheck').length;
+    // 获取选中的复选框的数量
+    var checklength = $('.usercheck:checked').length;
+    // console.log(inputs,checklength);
+    $('#checkall').prop('checked',inputs === checklength);
+    // 根据选中状态显示与隐藏批量删除按钮
+    if (checklength > 1) {
+        $('#deleteMany').show();
+    } else {
+        $('#deleteMany').hide();
+    }
+});
+// 给批量删除按钮添加点击事件
+$('#deleteMany').on('click',function () {
+    var arr = [];
+    $('.usercheck:checked').each((index,item) => {
+        arr.push($(item).attr('data-id'));
+    });
+    $.ajax({
+        type: 'delete',
+        url: '/users/' + arr.join('-'),
+        success: function (res) {
+            res.forEach((index,ele) => {
+                var index = userArr.findIndex(item => item._id === ele._id);
+                userArr.splice(index,1);
+            });
+            rander();
+        }
     })
 })
