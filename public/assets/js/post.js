@@ -36,3 +36,59 @@ $('#add').on('click',function () {
         }
     });
 });
+// 解析地址栏中的参数
+function getPramas(name) {
+    // 将参数解析为键值对的数组
+    var arr = location.search.substr(1).split('&')
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].split('=')[0] == name) {
+            // 如果找到该参数，返回值
+            return arr[i].split('=')[1];
+        }
+        // 找不到就返回-1
+        return -1;
+    }
+}
+// 获取地址栏中的id
+var id = getPramas('id');
+// 如果id不为-1，就是编辑功能
+if (id != -1) {
+    $.ajax({
+        type: 'get',
+        url: '/posts/' + id,
+        success: function(res) {
+            // 将获取到的数据填写到表单中
+            $('h1').text('修改文章');
+            $('#title').val(res.title);
+            $('#content').val(res.content);
+            $('.thumbnail').show().attr('src',res.thumbnail);
+            $('#hidden').val(res.thumbnail);
+            $('#created').val(res.createAt && res.createAt.substr(0,16));
+            $('#status option').each((index,item) => {
+                if ($(item).val() == res.state) {
+                    $(item).prop('selected',true);
+                }
+            });
+            $('#category option').each((index,item) => {
+                if ($(item).val() == res.category._id) {
+                    $(item).prop('selected',true);
+                }
+            });
+            $('#add').hide();
+            $('#editBtn').show();
+        }
+    });
+}
+// 点击提交，发送请求修改文章内容
+$('#editBtn').on('click',function() {
+    var formData = $('.row').serialize();
+    $.ajax({
+        type: 'put',
+        url: '/posts/' + id,
+        data: formData,
+        success: function (res) {
+            // 修改完成，返回文章显示页面
+            location.href = 'posts.html';
+        }
+    });
+});
