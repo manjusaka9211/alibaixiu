@@ -36,10 +36,10 @@
         <div class="form-group">
           <label for="site_logo" class="col-sm-2 control-label">网站图标</label>
           <div class="col-sm-6">
-            <input id="site_logo" name="site_logo" type="hidden">
-            <label class="form-image">
+            <input id="site_logo" name="logo" type="hidden">
+            <label class="form-image logo">
               <input id="logo" type="file">
-              <img src="../assets/img/logo.png">
+              <img src="../assets/img/logo.png" id="preview">
               <i class="mask fa fa-upload"></i>
             </label>
           </div>
@@ -47,35 +47,37 @@
         <div class="form-group">
           <label for="site_name" class="col-sm-2 control-label">站点名称</label>
           <div class="col-sm-6">
-            <input id="site_name" name="site_name" class="form-control" type="type" placeholder="站点名称">
+            <input id="site_name" name="title" class="form-control" type="type" placeholder="站点名称">
           </div>
         </div>
         <div class="form-group">
           <label for="site_description" class="col-sm-2 control-label">站点描述</label>
           <div class="col-sm-6">
-            <textarea id="site_description" name="site_description" class="form-control" placeholder="站点描述" cols="30" rows="6"></textarea>
+            <textarea id="site_description" name="description" class="form-control" placeholder="站点描述" cols="30" rows="6"></textarea>
           </div>
         </div>
         <div class="form-group">
           <label for="site_keywords" class="col-sm-2 control-label">站点关键词</label>
           <div class="col-sm-6">
-            <input id="site_keywords" name="site_keywords" class="form-control" type="type" placeholder="站点关键词">
+            <input id="site_keywords" name="keywords" class="form-control" type="type" placeholder="站点关键词">
           </div>
         </div>
         <div class="form-group">
           <label class="col-sm-2 control-label">评论</label>
           <div class="col-sm-6">
             <div class="checkbox">
-              <label><input id="comment_status" name="comment_status" type="checkbox" checked>开启评论功能</label>
+              <label><input id="comment_status" type="checkbox" checked>开启评论功能</label>
+              <input id="comment" name="comment" type="hidden">
             </div>
             <div class="checkbox">
-              <label><input id="comment_reviewed" name="comment_reviewed" type="checkbox" checked>评论必须经人工批准</label>
+              <label><input id="comment_reviewed" type="checkbox" checked>评论必须经人工批准</label>
+              <input id="review" name="review" type="hidden">
             </div>
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-6">
-            <button type="submit" class="btn btn-primary">保存设置</button>
+            <button type="button" class="btn btn-primary">保存设置</button>
           </div>
         </div>
       </form>
@@ -122,6 +124,54 @@
   <script src="../assets/vendors/jquery/jquery.js"></script>
   <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
   <script src="../assets/js/common.js"></script>
+  <script>
+    $('.logo').on('change','#logo',function () {
+      let formData = new FormData();
+      formData.append('img',this.files[0]);
+      $.ajax({
+        type: 'post',
+        url: '/upload',
+        data: formData,
+        // 告诉$.ajax方法不要解析请求参数
+        processData: false,
+        // 告诉$.ajax方法不要设置请求参数的类型
+        contentType: false,
+        success: function (response) {
+            // 实现头像预览功能
+            $('#preview').attr('src', response[0].img);
+            $('#site_logo').val(response[0].img)
+        }
+      });
+    });
+    $('.btn').on('click',function () {
+      $('#comment').val($('#comment_status').prop('checked'));
+      $('#review').val($('#comment_reviewed').prop('checked'));
+      let formData = $('form').serialize();
+      $.ajax({
+        type:'post',
+        url: '/settings',
+        data: formData,
+        success: function (res) {
+          console.log(res);
+        }
+      });
+    });
+    $.ajax({
+      type: 'get',
+      url: '/settings',
+      success: function (res) {
+        $('#site_logo').val(res.logo);
+        $('#preview').attr('src', res.logo);
+        $('#site_name').val(res.title);
+        $('#site_description').val(res.description);
+        $('#site_keywords').val(res.keywords);
+        $('#comment_status').prop('checked',res.comment);
+        $('#comment').val(res.comment);
+        $('#comment_reviewed').prop('checked',res.review);
+        $('#review').val(res.review);
+      }
+    });
+  </script>
   <script>NProgress.done()</script>
 </body>
 </html>

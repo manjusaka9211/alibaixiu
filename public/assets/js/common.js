@@ -36,3 +36,11 @@ $('tbody').on('change', '.usercheck', function () {
         $('#deleteMany').hide();
     }
 });
+$.ajax({
+    type: 'get',
+    url: '/users/' + userId,
+    success: function (res) {
+        $('.avatar').attr('src',res.avatar);
+        $('.name').text(res.nickName);
+    }
+});
